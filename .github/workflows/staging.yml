@@ -33,7 +33,7 @@ jobs:
 
       - name: Build content and show diff
         run: | 
-          make update-setup-code notebooks slides
+          make notebooks slides
           git diff --stat
 
       - name: Upload content
