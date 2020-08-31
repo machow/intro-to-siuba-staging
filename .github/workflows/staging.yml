@@ -5,17 +5,14 @@ on:
       - 'staging'
 
 jobs:
-  checkout:
-    name: Checkout repo
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
-
   build-content:
     name: "Build content"
     needs: checkout
     runs-on: ubuntu-18.04
     steps:
+      # checkout repo
+      - uses: actions/checkout@v2
+
       # fonts
       - name: install fonts
         run: sudo apt-get install fonts-noto-cjk
@@ -29,26 +26,42 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r binder/requirements.txt
+          pip install -rsults
 
-  build-site-staging:
-    name: "Build gridsome site"
-    needs: build-content
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
+      - name: Build content and show diff
+        run: | 
+          make update-setup-code notebooks slides
+          git diff --stat
+
+      - name: Upload content
+        uses: actions/upload-artifact@v2
+        with:
+          name: tutorial
+          path: tutorial
+
+      # gridsome site build
       - uses: actions/setup-node@v1
       - run: npm install
-      - run: make build-staging
+      - run: make build
+
+      - name: Upload site build
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
+
 
   deploy:
     name: "Deploy site to github pages"
     needs: build-site-staging
     runs-on: ubuntu-18.04
     steps:
+      - name: Download site build
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
       - name: gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_dir: dist
-          destination_dir: staging
