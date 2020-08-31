@@ -1,0 +1,48 @@
+name: Deploy staging
+on:
+  push:
+    branches:
+      - 'staging'
+
+jobs:
+  checkout:
+    name: Checkout repo
+      - uses: actions/checkout@v2
+
+  build-content:
+    name: "Build content"
+    runs-on: ubuntu-18.04
+    steps:
+      # fonts
+      - name: install fonts
+        run: sudo apt-get install fonts-noto-cjk
+      - name: reset font cache
+        run: fc-cache
+
+      # python
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7' 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+  build-site-staging:
+    name: "Build gridsome site"
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: make build-staging
+
+  deploy:
+    name: "Deploy site to github pages"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_dir: dist
+          destination_dir: staging
