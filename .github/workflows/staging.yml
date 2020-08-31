@@ -27,6 +27,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
           pip install -e ./utils/siututor ./utils/music_top200 ./utils/nbmarkbook
+      - name: Install kernel for nbconvert
+        run: |
+          ipython kernel install --name "venv-siublocks-org"
 
       - name: Build content and show diff
         run: | 
