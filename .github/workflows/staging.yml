@@ -45,7 +45,7 @@ jobs:
       # gridsome site build
       - uses: actions/setup-node@v1
       - run: npm install
-      - run: make build
+      - run: BUILD_ENV=production npm run build
 
       - name: Upload site build
         uses: actions/upload-artifact@v2
