@@ -5,9 +5,8 @@ on:
       - 'staging'
 
 jobs:
-  build-content:
-    name: "Build content"
-    needs: checkout
+  build-site:
+    name: "Build site"
     runs-on: ubuntu-18.04
     steps:
       # checkout repo
@@ -53,7 +52,7 @@ jobs:
 
   deploy:
     name: "Deploy site to github pages"
-    needs: build-site-staging
+    needs: build-site
     runs-on: ubuntu-18.04
     steps:
       - name: Download site build
