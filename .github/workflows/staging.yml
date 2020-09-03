@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'staging'
+      - 'master'
 
 jobs:
   build-site:
@@ -54,7 +55,27 @@ jobs:
           path: dist
 
 
-  deploy:
+  deploy-staging:
+    name: "Deploy staging site to github pages"
+    needs: build-site
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Download site build
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - name: Add staging-learn CNAME
+        run: |
+          echo "staging-learn.siuba.org" > dist/CNAME
+      - name: gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_STAGING_DEPLOY_KEY }}
+          publish_dir: dist
+          external_repository: machow/intro-to-siuba-staging
+
+  deploy-prod:
     name: "Deploy site to github pages"
     needs: build-site
     runs-on: ubuntu-18.04
@@ -64,10 +85,8 @@ jobs:
         with:
           name: dist
           path: dist
-      - run: ls
       - name: gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          deploy_key: ${{ secrets.ACTIONS_STAGING_DEPLOY_KEY }}
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_dir: dist
-          external_repository: machow/intro-to-siuba-staging
