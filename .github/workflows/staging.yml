@@ -58,6 +58,7 @@ jobs:
   deploy-staging:
     name: "Deploy staging site to github pages"
     needs: build-site
+    if:  github.ref == 'refs/heads/staging'
     runs-on: ubuntu-18.04
     steps:
       - name: Download site build
@@ -78,6 +79,7 @@ jobs:
   deploy-prod:
     name: "Deploy site to github pages"
     needs: build-site
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-18.04
     steps:
       - name: Download site build
